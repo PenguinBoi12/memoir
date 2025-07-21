@@ -6,22 +6,76 @@
   <img src="https://discordapp.com/api/guilds/823178343943897088/widget.png?style=shield" alt="Join on Discord">
 </a>
 <a href="https://opensource.org/licenses/gpl-3.0">
-  <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="License">
+  <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="License: GPL 3.0">
 </a>
 <a href="https://hexdocs.pm/elixir">
   <img src="https://img.shields.io/badge/Elixir-1.18.1-4e2a8e" alt="Elixir">
 </a>
 
-Memoir brings effortless, flexible caching to Elixir. Inspired by the elegance of Rails, it lets you cache results with clean macros or decorators, no boilerplate, no fuss. Use ETS, Cachex, or any backend you like with a plug-and-play adapter system. Write expressive, maintainable caching logic that just works.
+---
+
+**Memoir** brings effortless and expressive caching to Elixir. Inspired by the simplicity of Rails’ `fetch` API, Memoir gives you:
+
+- A clean `cache/3` block interface
+- Optional `@cache` decorators for function-level memoization
+- Pluggable backends (ETS, Cachex, or your own)
+- Minimal setup, maximum flexibility
+
+Write readable, maintainable caching logic without boilerplate.
+
+---
 
 ## Installation
 
-Memoir is not yet available on Hex, so you need to install it directly from GitHub:
+Memoir is not yet published on Hex. Add it directly from GitHub:
 
 ```elixir
 def deps do
   [
-    {:excord, github: "PenguinBoi12/memoir"}
+    {:memoir, github: "PenguinBoi12/memoir"}
   ]
 end
 ```
+
+## Usage
+
+Memoir is typically used to cache expensive function calls:
+
+```elixir
+Memoir.cache({:user, 123}, expire_in: :timer.minutes(5)) do
+  expensive_user_lookup(123)
+end
+```
+
+You can also interact with the cache directly:
+```elixir
+Memoir.put(:some_key, "value", ttl: 60_000)
+Memoir.get(:some_key)
+Memoir.delete(:some_key)
+Memoir.clear()
+```
+
+## Configuration
+
+You can configure Memoir in your config.exs:
+```elixir
+config :memoir,
+  adapter: Memoir.Adapters.ETS,
+  adapter_opts: [ttl: 300_000]
+```
+
+## Features
+
+- Memoization with function decorators
+
+- Block-based caching like Rails.cache.fetch
+
+- Pluggable backends (Cachex, ETS, etc.)
+
+- Safe and side-effect-free lazy evaluation
+
+- Minimal setup, works out of the box
+
+## License
+
+Memoir is released under the GPL-3.0. See [LICENCE](LICENCE)
