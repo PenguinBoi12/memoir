@@ -57,6 +57,39 @@ defmodule Memoir do
     Supervisor.init(children, strategy: :one_for_one)
   end
 
+  defmacro __using__(cache_opts) do
+    quote do
+      defmacro cache(key, opts \\ [], do: block) do
+        quote do
+          __MODULE__.fetch(
+            unquote(key),
+            unquote(opts),
+            fn -> unquote(block) end
+          )
+        end
+      end
+
+      # Generate cache functions that use the configured adapter and options
+      def fetch(key, opts \\ [], fun),
+        do: Memoir.fetch(key, build_options(opts), fun)
+
+      def get(key),
+        do: Memoir.get(key)
+
+      def put(key, value, opts \\ []),
+        do: Memoir.put(key, value, build_options(opts))
+
+      def delete(key),
+        do: Memoir.delete(key)
+
+      def clear(),
+        do: Memoir.clear()
+
+      defp build_options(opts),
+        do: Keyword.merge(opts, unquote(cache_opts))
+    end
+  end
+
   @doc """
   Main caching function that accepts a block.
 
@@ -70,7 +103,11 @@ defmodule Memoir do
   """
   defmacro cache(key, opts \\ [], do: block) do
     quote do
-      Memoir.fetch(unquote(key), unquote(opts), fn -> unquote(block) end)
+      Memoir.fetch(
+        unquote(key),
+        unquote(opts),
+        fn -> unquote(block) end
+      )
     end
   end
 
@@ -78,8 +115,11 @@ defmodule Memoir do
   Fetch from cache or execute the given function.
   """
   def fetch(key, opts \\ [], fun) do
-    cache_key = build_cache_key(key)
-    adapter = get_adapter()
+    cache_key = build_cache_key(key, opts)
+    adapter = get_adapter(opts)
+
+    if Keyword.get(opts, :force, false),
+      do: adapter.delete(cache_key)
 
     case adapter.get(cache_key) do
       {:ok, value} ->
@@ -92,32 +132,39 @@ defmodule Memoir do
   end
 
   @doc """
-
+  Get a value from the cache.
   """
-  def get(key),
-    do: build_cache_key(key) |> get_adapter().get()
+  def get(key, opts \\ []),
+    do: build_cache_key(key, opts) |> get_adapter(opts).get()
 
   @doc """
-
+  Put a value in the cache.
   """
   def put(key, value, opts \\ []),
-    do: build_cache_key(key) |> get_adapter().put(value, opts)
+    do: build_cache_key(key, opts) |> get_adapter(opts).put(value, opts)
 
   @doc """
-
+  Delete a value from the cache.
   """
-  def delete(key),
-    do: build_cache_key(key) |> get_adapter().delete()
+  def delete(key, opts \\ []),
+    do: build_cache_key(key, opts) |> get_adapter(opts).delete()
 
   @doc """
-
+  Clear all values from the cache.
   """
-  def clear(),
-    do: get_adapter().clear()
+  def clear(opts \\ []),
+    do: get_adapter(opts).clear()
 
-  defp build_cache_key(value),
-    do: :erlang.phash2(value)
+  defp build_cache_key(value, opts) do
+    name = Keyword.get(opts, :name, :memoir)
+    :erlang.phash2({name, value})
+  end
 
-  defp get_adapter,
+  defp get_adapter(opts \\ [])
+
+  defp get_adapter([adapter: adapter]),
+    do: adapter
+
+  defp get_adapter(_opts),
     do: Application.get_env(:memoir, :adapter, Memoir.Adapters.ETS)
 end
