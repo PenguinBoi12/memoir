@@ -17,22 +17,21 @@
 **Memoir** brings effortless and expressive caching to Elixir. Inspired by the simplicity of Rails’ `fetch` API, Memoir gives you:
 
 - A clean `cache/3` block interface
-- Optional `@cache` decorators for function-level memoization
-- Pluggable backends (ETS, Cachex, or your own)
-- Minimal setup, maximum flexibility
 
-Write readable, maintainable caching logic without boilerplate.
+- Optional `@cache` decorators for function-level memoization
+
+- Pluggable backends (ETS, Cachex, or your own)
+
+- Minimal setup, maximum flexibility
 
 ---
 
 ## Installation
 
-Memoir is not yet published on Hex. Add it directly from GitHub:
-
 ```elixir
 def deps do
   [
-    {:memoir, github: "PenguinBoi12/memoir"}
+    {:memoir, "~> 0.1.0"}
   ]
 end
 ```
@@ -50,34 +49,22 @@ children = [
 Memoir is typically used to cache expensive function calls:
 
 ```elixir
-Memoir.cache({:user, 123}, expire_in: :timer.minutes(5)) do
+Memoir.cache({:user, 123}, ttl: :timer.minutes(5)) do
   expensive_user_lookup(123)
 end
 ```
 
 You can also interact with the cache directly:
+
 ```elixir
-Memoir.put(:some_key, "value", ttl: 60_000)
-Memoir.get(:some_key)
-Memoir.delete(:some_key)
+Memoir.put({:user, 123}, "value", ttl: :timer.minutes(5))
+
+Memoir.get({:user, 123})
+
+Memoir.delete({:user, 123})
+
 Memoir.clear()
 ```
-
-You can also configure a cache per module like so
-```elixir
-defmodule Greeter do
-  use Memoir,
-    name: :greeter_cache,
-    adapter: Memoir.Adapters.MyAdapter,
-    ttl: :timer.minutes(5)
-
-  def greet(name) do
-    cache({:greet, name}) do # This will use the configured cache
-      "Hello, #{name}!"
-    end
-  end
-end
-``` 
 
 ## Configuration
 
@@ -88,17 +75,22 @@ config :memoir,
   adapter_opts: [ttl: 300_000]
 ```
 
-## Features
+You can also configure a cache per module like so:
 
-- Memoization with function decorators
+```elixir
+defmodule Greeter do
+  use Memoir,
+    name: :greeter_cache,
+    adapter: Memoir.Adapters.MyAdapter,
+    ttl: :timer.minutes(5)
 
-- Block-based caching like Rails.cache.fetch
-
-- Pluggable backends (Cachex, ETS, etc.)
-
-- Safe and side-effect-free lazy evaluation
-
-- Minimal setup, works out of the box
+  def greet(name) do
+    cache({:greet, name}) do # This will use the configured cache but can be overriden
+      "Hello, #{name}!"
+    end
+  end
+end
+```
 
 ## License
 

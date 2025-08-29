@@ -18,18 +18,19 @@ defmodule Memoir do
   Memoir is typically used to cache expensive function calls:
 
   ```elixir
-  Memoir.cache({:user, 123}, expire_in: :timer.minutes(5)) do
+  Memoir.cache({:user, 123}, ttl: :timer.minutes(5)) do
     expensive_user_lookup(123)
   end
   ```
 
   You can also interact with the cache directly:
+
   ```elixir
-  Memoir.put(:some_key, "value", ttl: 60_000)
+  Memoir.put({:user, 123}, "value", ttl: :timer.minutes(5))
 
-  Memoir.get(:some_key)
+  Memoir.get({:user, 123})
 
-  Memoir.delete(:some_key)
+  Memoir.delete({:user, 123})
 
   Memoir.clear()
   ```
@@ -37,10 +38,28 @@ defmodule Memoir do
   ## Configuration
 
   You can configure Memoir in your config.exs:
+
   ```
   config :memoir,
-    adapter: Memoir.Adapters.ETS,
+    adapter: Memoir.Adapters.Cachex,
     adapter_opts: [ttl: 300_000]
+  ```
+
+  You can also configure a cache per module like so:
+
+  ```elixir
+  defmodule Greeter do
+    use Memoir,
+      name: :greeter_cache,
+      adapter: Memoir.Adapters.MyAdapter,
+      ttl: :timer.minutes(5)
+
+    def greet(name) do
+      cache({:greet, name}) do # This will use the configured cache
+        "Hello, #{name}!"
+      end
+    end
+  end
   ```
   """
   use Supervisor
