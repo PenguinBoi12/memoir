@@ -48,7 +48,7 @@ defmodule Memoir.Adapters.Cachex do
     result = case Cachex.get(cache_name, key) do
       {:ok, nil} -> {:error, :not_found}
       {:ok, value} -> {:ok, value}
-      {:error, _} -> {:error, :not_found}
+      {:error, error} -> {:error, error}
     end
 
     {:reply, result, state}

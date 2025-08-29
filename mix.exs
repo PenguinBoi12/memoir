@@ -30,7 +30,8 @@ defmodule Memoir.MixProject do
   defp deps do
     [
       {:excoveralls, "~> 0.18", only: :test},
-      {:cachex, "~> 4.1.1", optional: true}
+      {:meck, "~> 1.0.0", only: :test},
+      {:cachex, "~> 4.1.1", optional: true, only: [:dev, :test]}
     ]
   end
 end

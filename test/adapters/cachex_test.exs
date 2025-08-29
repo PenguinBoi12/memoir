@@ -17,10 +17,8 @@ defmodule Memoir.Adapters.CachexTest do
     end
 
     test "returns error if error with cachex" do
-
       cache_name = unique_cache()
 
-      # error = Cachex.init(cache_name: [inavlid: :name])
       error = Cachex.start_link(
         cache_name: cache_name,
         expiration: expiration(default: "5")
@@ -51,15 +49,6 @@ defmodule Memoir.Adapters.CachexTest do
       assert GenServer.call(pid, {:get, :key}) == {:error, :not_found}
     end
 
-    # test "get returns {:error, :not_found} when Cachex errors", %{pid: pid} do
-
-    #   GenServer.call(pid, {:put, :foo, "bar", []})
-    #   IO.inspect(GenServer.call(pid, {:get, :foo}))
-
-    #   Cachex.stop(pid)
-    #   assert GenServer.call(pid, {:get, :foo}) == {:error, :not_found}
-    # end
-
     test "clear removes all keys", %{pid: pid} do
       GenServer.call(pid, {:put, :a, 1, []})
       GenServer.call(pid, {:put, :b, 2, []})
@@ -67,6 +56,15 @@ defmodule Memoir.Adapters.CachexTest do
       assert GenServer.call(pid, :clear) == :ok
       assert GenServer.call(pid, {:get, :a}) == {:error, :not_found}
       assert GenServer.call(pid, {:get, :b}) == {:error, :not_found}
+    end
+
+    test "get returns {:error, :not_found} when cache is in invalid state" do
+      fake_cache_name = :"nonexistent_cache_#{:erlang.unique_integer()}"
+      {:ok, pid} = GenServer.start_link(Cachex, [])
+
+      :sys.replace_state(pid, fn _state -> %{cache_name: fake_cache_name} end)
+
+      assert GenServer.call(pid, {:get, :foo}) == {:error, :no_cache}
     end
   end
 end

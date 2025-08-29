@@ -80,4 +80,21 @@ defmodule MemoirTest do
       assert {:ok, "new"} = Memoir.get(:force_test)
     end
   end
+
+  describe "adapter override" do
+    defmodule UniqueMockAdapter do
+      def get(_key), do: {:ok, :unique_value}
+      def put(_key, _value, _opts), do: :unique_put_response
+      def delete(_key), do: :unique_delete_response  
+      def clear(), do: :unique_clear_response
+    end
+
+    test "uses provided adapter for get/2" do
+      assert {:ok, :unique_value} = Memoir.get(:test, adapter: UniqueMockAdapter)
+    end
+
+    test "uses provided adapter for put/3" do
+      assert :unique_put_response = Memoir.put(:test, "val", adapter: UniqueMockAdapter)
+    end
+  end
 end
