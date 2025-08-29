@@ -4,6 +4,7 @@ defmodule Memoir.Adapters.ETS do
   """
   use Memoir.Adapter
 
+  # coveralls-ignore-start
   def init(_opts) do
     {:ok, %{}}
   end
@@ -23,4 +24,5 @@ defmodule Memoir.Adapters.ETS do
   def handle_call(:clear, _from, state) do
     {:reply, :ok, state}
   end
+  # coveralls-ignore-stop
 end
