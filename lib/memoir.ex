@@ -60,16 +60,18 @@ defmodule Memoir do
   defmacro __using__(cache_opts) do
     quote do
       defmacro cache(key, opts \\ [], do: block) do
+        opts = build_options(opts)
+
         quote do
-          __MODULE__.fetch(
+          Memoir.cache(
             unquote(key),
-            unquote(opts),
-            fn -> unquote(block) end
-          )
+            unquote(opts)
+          ) do
+            unquote(block)
+          end
         end
       end
 
-      # Generate cache functions that use the configured adapter and options
       def fetch(key, opts \\ [], fun),
         do: Memoir.fetch(key, build_options(opts), fun)
 
@@ -79,13 +81,13 @@ defmodule Memoir do
       def put(key, value, opts \\ []),
         do: Memoir.put(key, value, build_options(opts))
 
-      def delete(key),
-        do: Memoir.delete(key)
+      def delete(key, opts \\ []),
+        do: Memoir.delete(key, build_options(opts))
 
-      def clear(),
-        do: Memoir.clear()
+      def clear(opts \\ []),
+        do: Memoir.clear(build_options(opts))
 
-      defp build_options(opts),
+      def build_options(opts),
         do: Keyword.merge(opts, unquote(cache_opts))
     end
   end
@@ -115,18 +117,17 @@ defmodule Memoir do
   Fetch from cache or execute the given function.
   """
   def fetch(key, opts \\ [], fun) do
-    cache_key = build_cache_key(key, opts)
-    adapter = get_adapter(opts)
-
     if Keyword.get(opts, :force, false),
-      do: adapter.delete(cache_key)
+      do: delete(key, opts)
 
-    case adapter.get(cache_key) do
+    IO.inspect(opts)
+
+    case get(key, opts) do
       {:ok, value} ->
         value
       {:error, :not_found} ->
         value = fun.()
-        adapter.put(cache_key, value, opts)
+        put(key, value, opts)
         value
     end
   end

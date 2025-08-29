@@ -25,7 +25,7 @@ defmodule Memoir.Adapters.Cachex do
   end
 
   def handle_call({:put, key, value, opts}, _from, %{cache_name: cache_name} = state) do
-    expire = Keyword.get(opts, :expire_in)
+    expire = Keyword.get(opts, :ttl)
 
     Cachex.put(cache_name, key, value, expire: expire)
     {:reply, :ok, state}
