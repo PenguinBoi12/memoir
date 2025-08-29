@@ -37,6 +37,14 @@ def deps do
 end
 ```
 
+Start the application by adding it to your supervision tree:
+
+```elixir
+children = [
+  Memoir
+]
+```
+
 ## Usage
 
 Memoir is typically used to cache expensive function calls:
@@ -54,6 +62,22 @@ Memoir.get(:some_key)
 Memoir.delete(:some_key)
 Memoir.clear()
 ```
+
+You can also configure a cache per module like so
+```elixir
+defmodule Greeter do
+  use Memoir,
+    name: :greeter_cache,
+    adapter: Memoir.Adapters.MyAdapter,
+    ttl: :timer.minutes(5)
+
+  def greet(name) do
+    cache({:greet, name}) do # This will use the configured cache
+      "Hello, #{name}!"
+    end
+  end
+end
+``` 
 
 ## Configuration
 
