@@ -73,8 +73,8 @@ defmodule Memoir do
       def fetch(key, opts \\ [], fun),
         do: Memoir.fetch(key, build_options(opts), fun)
 
-      def get(key),
-        do: Memoir.get(key)
+      def get(key, opts \\ []),
+        do: Memoir.get(key, build_options(opts))
 
       def put(key, value, opts \\ []),
         do: Memoir.put(key, value, build_options(opts))

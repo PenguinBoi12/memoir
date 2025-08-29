@@ -67,7 +67,7 @@ You can also configure a cache per module like so
 ```elixir
 defmodule Greeter do
   use Memoir,
-    name: :greeter_cache
+    name: :greeter_cache,
     adapter: Memoir.Adapters.MyAdapter,
     ttl: :timer.minutes(5)
 
