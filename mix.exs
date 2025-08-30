@@ -2,7 +2,7 @@ defmodule Memoir.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/PenguinBoi12/memoir"
-  @version "0.1.0"
+  @version "0.2.1"
 
   def project do
     [
