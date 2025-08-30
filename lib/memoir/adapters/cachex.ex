@@ -2,35 +2,29 @@ defmodule Memoir.Adapters.Cachex do
   @moduledoc """
   A `Cachex`-based cache adapter with automatic `GenServer` management.
 
-  This adapter wraps [Cachex](https://hex.pm/packages/cachex) operations
-  (`get/2`, `put/4`, `delete/2`, `clear/1`) in a `GenServer` process,
-  so it can be used as part of the `Memoir` caching framework.
+  This adapter provide a wrapper around [Cachex's](https://hex.pm/packages/cachex) operations
+  (`get/2`, `put/4`, `delete/2`, `clear/1`), so it can be used as part of the `Memoir`
+  caching framework.
 
-  ## Features
-    * Starts and supervises a named `Cachex` cache instance.
-    * Provides `:get`, `:put`, `:delete`, and `:clear` calls through `GenServer`.
-    * Automatically handles already-started cache processes.
+  ## Usage
 
-  ## Options
-    * `:cache_name` — the name of the underlying Cachex cache (default: `:memoir_cachex`)
-    * Any other options supported by `Cachex.start_link/2`.
+  The adapter is used automatically through the Memoir.Adapter behavior:
 
-  ## Example
+      # Get a value
+      {:ok, value} = Memoir.Adapters.Cachex.get(:my_key)
 
-      iex> GenServer.call(pid, {:put, :foo, "bar", []})
-      :ok
+      # Put a value
+      :ok = Memoir.Adapters.Cachex.put(:my_key, "my_value")
 
-      iex> GenServer.call(pid, {:get, :foo})
-      {:ok, "bar"}
+      # Delete a key
+      :ok = Memoir.Adapters.Cachex.delete(:my_key)
 
-      iex> GenServer.call(pid, {:delete, :foo})
-      :ok
+      # Clear all entries
+      :ok = Memoir.Adapters.Cachex.clear()
 
-      iex> GenServer.call(pid, {:get, :foo})
-      {:error, :not_found}
+  ## Cachex configuration
 
-      iex> GenServer.call(pid, :clear)
-      :ok
+  - `:cache_name` - the name of Cachex's cache (default: `:memoir_cachex`)
   """
   use Memoir.Adapter
 
@@ -69,5 +63,9 @@ defmodule Memoir.Adapters.Cachex do
   def handle_call(:clear, _from, %{cache_name: cache_name} = state) do
     Cachex.clear(cache_name)
     {:reply, :ok, state}
+  end
+
+  def terminate(_reason, _state) do
+    :ok
   end
 end
