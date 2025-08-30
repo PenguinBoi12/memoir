@@ -5,6 +5,9 @@
 <a href="https://discord.gg/code-society-823178343943897088">
   <img src="https://discordapp.com/api/guilds/823178343943897088/widget.png?style=shield" alt="Join on Discord">
 </a>
+<a href="https://hex.pm/packages/memoir">
+  <img src="https://img.shields.io/hexpm/v/memoir.svg" alt="Memoir">
+</a>
 <a href="https://opensource.org/licenses/gpl-3.0">
   <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="License: GPL 3.0">
 </a>
@@ -18,11 +21,9 @@
 
 - A clean `cache/3` block interface
 
-- Optional `@cache` decorators for function-level memoization
-
 - Pluggable backends (ETS, Cachex, or your own)
 
-- Minimal setup, maximum flexibility
+- Minimal setup
 
 ---
 
@@ -31,7 +32,7 @@
 ```elixir
 def deps do
   [
-    {:memoir, "~> 0.1.0"}
+    {:memoir, "~> 0.2.1"}
   ]
 end
 ```
@@ -71,7 +72,7 @@ Memoir.clear()
 You can configure Memoir in your config.exs:
 ```elixir
 config :memoir,
-  adapter: Memoir.Adapters.ETS,
+  adapter: Memoir.Adapters.Cachex,
   adapter_opts: [ttl: 300_000]
 ```
 
