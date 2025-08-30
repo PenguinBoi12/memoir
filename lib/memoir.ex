@@ -65,7 +65,7 @@ defmodule Memoir do
     adapter_opts = Application.get_env(:memoir, :adapter_opts, [])
 
     children = [
-      {adapter, [adapter_opts]}
+      {adapter, adapter_opts}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
