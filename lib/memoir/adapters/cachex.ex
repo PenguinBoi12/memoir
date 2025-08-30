@@ -64,8 +64,4 @@ defmodule Memoir.Adapters.Cachex do
     Cachex.clear(cache_name)
     {:reply, :ok, state}
   end
-
-  def terminate(_reason, _state) do
-    :ok
-  end
 end
