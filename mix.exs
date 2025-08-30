@@ -2,7 +2,7 @@ defmodule Memoir.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/PenguinBoi12/memoir"
-  @version "0.1.0"
+  @version "0.2.1"
 
   def project do
     [
@@ -37,7 +37,7 @@ defmodule Memoir.MixProject do
     [
       {:excoveralls, "~> 0.18", only: :test},
       {:meck, "~> 1.0.0", only: :test},
-      {:cachex, "~> 4.1.1", optional: true, only: [:dev, :test]}
+      {:cachex, "~> 4.1.1"}
     ]
   end
 
