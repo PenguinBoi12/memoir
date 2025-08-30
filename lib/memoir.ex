@@ -45,22 +45,6 @@ defmodule Memoir do
     adapter_opts: [ttl: 300_000]
   ```
 
-  You can also configure a cache per module like so:
-
-  ```elixir
-  defmodule Greeter do
-    use Memoir,
-      name: :greeter_cache,
-      adapter: Memoir.Adapters.MyAdapter,
-      ttl: :timer.minutes(5)
-
-    def greet(name) do
-      cache({:greet, name}) do # This will use the configured cache
-        "Hello, #{name}!"
-      end
-    end
-  end
-  ```
   """
   use Supervisor
 
