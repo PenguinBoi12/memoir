@@ -32,7 +32,7 @@
 ```elixir
 def deps do
   [
-    {:memoir, "~> 0.2.1"}
+    {:memoir, "~> 0.2.2"}
   ]
 end
 ```
